@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Entregable Técnico - IMPETEC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root { --blue-imp: #004691; }
+        @page { size: A4; margin: 0; }
+        body { background: #f1f5f9; font-family: 'Inter', sans-serif; -webkit-print-color-adjust: exact; }
+        .document-page { background: white; width: 210mm; min-height: 297mm; margin: 10px auto; padding: 15mm; position: relative; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .section-title { background: #f8fafc; color: #1e293b; padding: 6px 12px; font-weight: 800; font-size: 11px; text-transform: uppercase; margin-bottom: 12px; border-left: 4px solid var(--blue-imp); border-bottom: 1px solid #e2e8f0; }
+        input, textarea { border: none; background: transparent; padding: 2px; width: 100%; outline: none; transition: background 0.2s; font-family: inherit; }
+        input:hover, textarea:hover { background: #f1f5f9; }
+        input:focus, textarea:focus { background: #eff6ff; }
+        
+        .logo-upload-container { width: 250px; height: 80px; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer; }
+        .logo-preview { max-width: 100%; max-height: 100%; object-fit: contain; padding: 5px; }
+        
+        /* Área de Inventario (Foto) */
+        .inventory-box { position: relative; width: 100%; min-height: 300px; background: #fdfdfd; border: 2px dashed #cbd5e1; border-radius: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; }
+        .inventory-preview-img { width: 100%; height: auto; object-fit: contain; }
+
+        /* Fotos de Evidencia */
+        .photo-box { position: relative; width: 100%; height: 160px; background: #f8fafc; border: 2px dashed #e2e8f0; border-radius: 10px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .photo-preview-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .btn-overlay { position: absolute; bottom: 8px; background: rgba(0,0,0,0.7); color: white; padding: 4px 12px; border-radius: 20px; font-size: 9px; font-weight: 800; display: none; z-index: 10; }
+        .photo-box:hover .btn-overlay, .inventory-box:hover .btn-overlay { display: block; }
+
+        @media print {
+            .no-print { display: none !important; }
+            .document-page { margin: 0; box-shadow: none; width: 100%; padding: 10mm; }
+            .logo-upload-container, .inventory-box { border: none !important; }
+        }
+    </style>
+</head>
+<body onload="cargarDatosPersistentes()">
+
+    <div class="no-print bg-slate-900 p-4 sticky top-0 z-50 flex justify-center gap-4 shadow-2xl">
+        <button onclick="descargarPDF()" class="bg-blue-600 text-white px-8 py-2 rounded-full font-black text-xs uppercase hover:bg-blue-500 transition-all">
+            <i class="fas fa-file-pdf mr-2"></i> Generar Reporte PDF
+        </button>
+        <button onclick="borrarFormulario()" class="bg-red-600 text-white px-4 py-2 rounded-full font-bold text-xs uppercase hover:bg-red-500">
+            <i class="fas fa-sync-alt"></i> Limpiar Todo
+        </button>
+    </div>
+
+    <div id="entregable-impetec" class="document-page">
+        <div class="flex justify-between items-start border-b-2 border-slate-800 pb-4 mb-6">
+            <div class="space-y-2">
+                <div id="logoContainer" class="logo-upload-container" onclick="document.getElementById('logoInput').click()">
+                    <input type="file" id="logoInput" class="hidden" accept="image/*" onchange="previewLogo(this)">
+                    <div id="logoPlaceholder" class="text-center text-[9px] text-slate-400 font-bold uppercase p-4">
+                        <i class="fas fa-image text-2xl mb-2 block"></i>
+                        Logo Empresa
+                    </div>
+                    <img id="logoPreviewImg" class="logo-preview hidden">
+                </div>
+            </div>
+            <div class="text-right">
+                <h2 class="text-2xl font-black text-slate-800 uppercase italic leading-none tracking-tight">Entregable Técnico</h2>
+                <div class="mt-4 text-[10px] font-bold">
+                    <span class="text-slate-400 uppercase">Fecha:</span>
+                    <input type="date" id="fechaAuto" class="w-32 text-right">
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">1. Información del Cliente</div>
+        <div class="grid grid-cols-2 gap-4 mb-6 text-[11px]">
+            <div class="border-b border-slate-100 p-1">
+                <label class="text-[8px] text-slate-400 font-bold uppercase block">Nombre / Contacto</label>
+                <input type="text" placeholder="OSCAR CASTAÑEDA" class="font-bold uppercase w-full">
+            </div>
+            <div class="border-b border-slate-100 p-1">
+                <label class="text-[8px] text-slate-400 font-bold uppercase block">Empresa</label>
+                <input type="text" placeholder="N/A" class="font-bold uppercase w-full">
+            </div>
+            <div class="col-span-2 border-b border-slate-100 p-1">
+                <label class="text-[8px] text-slate-400 font-bold uppercase block">Ubicación de Instalación</label>
+                <input type="text" placeholder="Dirección completa" class="font-bold w-full">
+            </div>
+        </div>
+
+        <div class="section-title">2. Detalles del Personal</div>
+        <div class="grid grid-cols-2 gap-4 mb-6 text-[11px]">
+            <div class="border-b border-slate-100 p-1">
+                <label class="text-[8px] text-slate-400 font-bold uppercase block">Técnico Responsable</label>
+                <input type="text" id="tecPersistente" placeholder="Nombre Técnico" onchange="guardarTextoPersistente()" class="font-black text-blue-800 uppercase w-full">
+            </div>
+            <div class="border-b border-slate-100 p-1">
+                <label class="text-[8px] text-slate-400 font-bold uppercase block">Vendedor</label>
+                <input type="text" id="vendPersistente" placeholder="Nombre Vendedor" onchange="guardarTextoPersistente()" class="font-bold uppercase w-full">
+            </div>
+        </div>
+
+        <div class="section-title">3. Equipos Instalados y Garantía (Captura/Foto)</div>
+        <div class="inventory-box mb-8" onclick="document.getElementById('inventoryInput').click()">
+            <input type="file" id="inventoryInput" class="hidden" accept="image/*" onchange="previewInventory(this)">
+            <div id="invPlaceholder" class="text-center text-slate-400">
+                <i class="fas fa-file-invoice text-4xl mb-2"></i>
+                <p class="text-[10px] font-bold uppercase tracking-widest">Click para pegar captura de equipos o foto de garantía</p>
+            </div>
+            <img id="invPreviewImg" class="inventory-preview-img hidden">
+            <div class="btn-overlay no-print">Cambiar Lista de Equipos</div>
+        </div>
+
+        <div class="section-title">4. Evidencia Fotográfica de Obra</div>
+        <div class="grid grid-cols-3 gap-3 mb-10">
+            <div class="photo-box cursor-pointer" onclick="this.querySelector('input').click()">
+                <input type="file" class="hidden" accept="image/*" onchange="previewImg(this)">
+                <i class="fas fa-camera text-slate-200 text-3xl"></i>
+                <div class="btn-overlay no-print">Cambiar</div>
+            </div>
+            <div class="photo-box cursor-pointer" onclick="this.querySelector('input').click()">
+                <input type="file" class="hidden" accept="image/*" onchange="previewImg(this)">
+                <i class="fas fa-camera text-slate-200 text-3xl"></i>
+                <div class="btn-overlay no-print">Cambiar</div>
+            </div>
+            <div class="photo-box cursor-pointer" onclick="this.querySelector('input').click()">
+                <input type="file" class="hidden" accept="image/*" onchange="previewImg(this)">
+                <i class="fas fa-camera text-slate-200 text-3xl"></i>
+                <div class="btn-overlay no-print">Cambiar</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-20 text-center mt-16 pb-12">
+            <div>
+                <div class="border-b-2 border-slate-800 mb-2"></div>
+                <input type="text" placeholder="Firma Técnico" class="text-center font-black uppercase text-[9px] w-full">
+            </div>
+            <div>
+                <div class="border-b-2 border-slate-800 mb-2"></div>
+                <input type="text" placeholder="Firma Cliente" class="text-center font-black italic text-[9px] w-full">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('fechaAuto').valueAsDate = new Date();
+
+        // Logo Persistente
+        function previewLogo(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    localStorage.setItem('logo_persistente', e.target.result);
+                    mostrarLogo(e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function mostrarLogo(src) {
+            document.getElementById('logoPlaceholder').classList.add('hidden');
+            const img = document.getElementById('logoPreviewImg');
+            img.src = src;
+            img.classList.remove('hidden');
+            document.getElementById('logoContainer').style.border = "none";
+        }
+
+        // Inventario de Equipos (Foto)
+        function previewInventory(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('invPlaceholder').classList.add('hidden');
+                    const img = document.getElementById('invPreviewImg');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Persistencia de Nombres
+        function guardarTextoPersistente() {
+            localStorage.setItem('tec_nombre', document.getElementById('tecPersistente').value);
+            localStorage.setItem('vend_nombre', document.getElementById('vendPersistente').value);
+        }
+
+        function cargarDatosPersistentes() {
+            const logo = localStorage.getItem('logo_persistente');
+            if (logo) mostrarLogo(logo);
+            
+            const tec = localStorage.getItem('tec_nombre');
+            const vend = localStorage.getItem('vend_nombre');
+            if (tec) document.getElementById('tecPersistente').value = tec;
+            if (vend) document.getElementById('vendPersistente').value = vend;
+        }
+
+        // Evidencia Fotográfica
+        function previewImg(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const box = input.parentElement;
+                    let img = box.querySelector('.photo-preview-img') || document.createElement('img');
+                    img.className = 'photo-preview-img';
+                    img.src = e.target.result;
+                    box.prepend(img);
+                    box.querySelector('.fa-camera').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function descargarPDF() {
+            const element = document.getElementById('entregable-impetec');
+            html2pdf().set({
+                margin: 0,
+                filename: 'Entregable_Tecnico_IMPETEC.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            }).from(element).save();
+        }
+
+        function borrarFormulario() {
+            if(confirm("¿Limpiar datos? (Logo y Personal se conservan)")) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
