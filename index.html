@@ -3,167 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMPETEC | Catálogo</title>
+    <title>IMPETEC | Soluciones de Ingeniería</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        :root { --sys-blue: #0056b3; --sys-dark: #1a1d21; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7f9; }
+        :root { --brand-blue: #0052ff; --brand-dark: #0f172a; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; margin: 0; }
 
-        /* SIDEBAR COPIA FIEL SYSCOM */
-        #sidebar { transition: all 0.3s ease; z-index: 1000; width: 300px; background: white; border-right: 1px solid #ddd; }
-        .sidebar-header { background: var(--sys-dark); color: white; padding: 20px; }
-        .nav-group-title { background: #ebeef2; color: #555; padding: 8px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-item { display: flex; align-items: center; padding: 12px 20px; font-size: 13px; color: #444; border-bottom: 1px solid #f0f0f0; width: 100%; text-align: left; background: none; cursor: pointer; }
-        .nav-item:hover { background: #eef6ff; color: var(--sys-blue); }
-        .nav-item i { width: 25px; color: #888; margin-right: 10px; }
+        /* Tarjetas Reforzadas (Anti-amontonamiento) */
+        .product-card { 
+            display: flex; flex-direction: column; height: 100%; min-height: 480px;
+            background: white; border-radius: 12px; border: 1px solid #e2e8f0; 
+            transition: all 0.3s ease;
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(0,0,0,0.08); border-color: var(--brand-blue); }
         
-        .sub-nav-item { padding: 8px 20px 8px 45px; font-size: 12px; color: #666; display: block; width: 100%; text-align: left; background: none; }
-        .sub-nav-item:hover { color: var(--sys-blue); background: #f1f5f9; }
+        .img-wrap { height: 180px; display: flex; align-items: center; justify-content: center; padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        .info-wrap { padding: 16px; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .p-title { font-size: 13px; font-weight: 700; color: #334155; line-height: 1.3; min-height: 34px; margin-bottom: 8px; overflow: hidden; }
+        .p-model { font-size: 10px; font-weight: 800; color: var(--brand-blue); text-transform: uppercase; margin-bottom: 4px; }
+        .p-desc { font-size: 11px; color: #64748b; line-height: 1.4; margin-bottom: 15px; flex-grow: 1; }
+        .p-price { font-size: 20px; font-weight: 900; color: #0f172a; margin-bottom: 12px; }
 
-        /* TARJETAS SIN AMONTONAR */
-        .product-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; display: flex; flex-direction: column; height: 100%; transition: 0.3s; }
-        .product-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .img-box { height: 180px; display: flex; align-items: center; justify-content: center; padding: 15px; border-bottom: 1px solid #f1f5f9; }
-        .info-box { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
-        .p-title { font-size: 12px; font-weight: 600; line-height: 1.4; color: #333; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; margin-bottom: 8px; }
-        
-        #cart-sidebar { transition: all 0.3s ease; z-index: 1000; width: 350px; }
-        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 900; backdrop-filter: blur(2px); }
+        /* Sidebar & Overlay */
+        #sidebar { transition: 0.3s; z-index: 1000; width: 280px; background: white; position: fixed; height: 100%; top: 0; left: 0; transform: translateX(-100%); }
+        .sidebar-open #sidebar { transform: translateX(0); }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 900; backdrop-filter: blur(2px); }
+        .sidebar-open .overlay { display: block; }
+
+        /* Scrollbar estética */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="overlay" class="overlay" onclick="closeAll()"></div>
+    <div class="overlay" onclick="toggleMenu()"></div>
 
-    <aside id="sidebar" class="fixed left-0 top-0 h-full transform -translate-x-full overflow-y-auto shadow-2xl">
-        <div class="sidebar-header flex justify-between items-center">
-            <span class="font-bold text-lg">IMPETEC</span>
-            <button onclick="toggleSidebar()"><i class="fas fa-times text-white"></i></button>
+    <aside id="sidebar" class="shadow-2xl overflow-y-auto">
+        <div class="p-6 bg-gray-900 text-white flex justify-between items-center">
+            <span class="font-black italic text-lg">IMPETEC</span>
+            <button onclick="toggleMenu()"><i class="fas fa-times"></i></button>
         </div>
-        <nav>
-            <div class="nav-group-title">Departamentos</div>
-            <button onclick="filtrar('Videovigilancia')" class="nav-item"><i class="fas fa-video"></i> Videovigilancia</button>
-            <button onclick="filtrar('Redes')" class="nav-item"><i class="fas fa-wifi"></i> Redes e Inalámbricos</button>
-            <button onclick="filtrar('Acceso')" class="nav-item"><i class="fas fa-fingerprint"></i> Control de Acceso</button>
-            
-            <div class="nav-group-title">Tipos de Cámaras</div>
-            <button onclick="filtrar('Cámara IP')" class="sub-nav-item">• Cámaras IP</button>
-            <button onclick="filtrar('Cámara Análoga')" class="sub-nav-item">• Cámaras Análogas</button>
-            <button onclick="filtrar('PTZ')" class="sub-nav-item">• Cámaras PTZ</button>
-            <button onclick="filtrar('Térmica')" class="sub-nav-item">• Cámaras Térmicas</button>
-
-            <div class="nav-group-title">Marcas</div>
-            <button onclick="filtrar('Hikvision')" class="nav-item font-bold text-red-600">HIKVISION</button>
-            <button onclick="filtrar('Epcom')" class="nav-item font-bold text-blue-800">EPCOM</button>
-            <button onclick="filtrar('Ubiquiti')" class="nav-item font-bold text-blue-400">UBIQUITI</button>
+        <nav class="p-4">
+            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-4 px-2">Ingenierías</p>
+            <button onclick="filtrar('Videovigilancia')" class="w-full text-left p-3 text-sm font-semibold hover:bg-blue-50 rounded-lg mb-1"><i class="fas fa-video mr-3 opacity-50"></i> Videovigilancia</button>
+            <button onclick="filtrar('Redes')" class="w-full text-left p-3 text-sm font-semibold hover:bg-blue-50 rounded-lg mb-1"><i class="fas fa-wifi mr-3 opacity-50"></i> Redes e Inalámbricos</button>
+            <button onclick="filtrar('Acceso')" class="w-full text-left p-3 text-sm font-semibold hover:bg-blue-50 rounded-lg mb-1"><i class="fas fa-fingerprint mr-3 opacity-50"></i> Control de Acceso</button>
+            <hr class="my-4">
+            <a href="https://wa.me/524772471293" target="_blank" class="w-full flex items-center p-3 text-sm font-bold text-blue-600 bg-blue-50 rounded-lg">
+                <i class="fas fa-headset mr-3"></i> Soporte Técnico
+            </a>
         </nav>
     </aside>
 
-    <nav class="bg-white border-b sticky top-0 z-50 h-20 flex items-center px-6 shadow-sm">
-        <button onclick="toggleSidebar()" class="mr-6 p-2 bg-gray-100 rounded-lg"><i class="fas fa-bars"></i></button>
-        <img src="logo.png" onclick="location.reload()" class="h-10 cursor-pointer" alt="Logo IMPETEC">
-        
-        <div class="flex-1 max-w-2xl mx-10 relative">
-            <input type="text" id="search-input" placeholder="Buscar en el catálogo..." class="w-full bg-gray-100 rounded-lg py-2 px-10 outline-none border focus:border-blue-500">
-            <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+    <nav class="bg-white border-b sticky top-0 z-50 px-4 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-4">
+            <button onclick="toggleMenu()" class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><i class="fas fa-bars"></i></button>
+            <span class="text-xl font-black tracking-tighter text-gray-900">IMPETEC</span>
         </div>
-
-        <button onclick="toggleCart()" class="relative p-2 text-blue-600 bg-blue-50 rounded-lg">
-            <i class="fas fa-shopping-cart"></i>
-            <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">0</span>
-        </button>
+        <div class="flex-1 max-w-lg mx-6">
+            <input type="text" id="search" placeholder="Buscar modelo o tecnología..." class="w-full bg-gray-100 border-none rounded-xl py-2 px-5 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="flex items-center gap-4">
+            <button onclick="toggleCart()" class="relative p-2"><i class="fas fa-shopping-basket text-xl text-gray-700"></i><span id="c-count" class="absolute top-0 right-0 bg-red-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span></button>
+        </div>
     </nav>
 
     <main class="max-w-7xl mx-auto p-6">
-        <h2 id="section-title" class="text-2xl font-black text-gray-800 mb-8 border-b pb-4">Cargando...</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="products-grid"></div>
+        <h2 id="title" class="text-xl font-extrabold text-gray-800 mb-8 border-l-4 border-blue-600 pl-4 uppercase tracking-tight">Cargando Soluciones...</h2>
+        <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
     </main>
 
-    <aside id="cart-sidebar" class="fixed right-0 top-0 h-full bg-white transform translate-x-full flex flex-col shadow-2xl border-l">
-        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-            <h3 class="font-bold">MI PRESUPUESTO</h3>
-            <button onclick="toggleCart()"><i class="fas fa-times"></i></button>
-        </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
-        <div class="p-6 border-t space-y-4">
-            <div class="flex justify-between font-bold text-lg"><span>Total:</span><span id="cart-total">$0.00</span></div>
-            <button onclick="enviarPedidoWA()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2">
-                <i class="fab fa-whatsapp"></i> Enviar a Ventas
-            </button>
-        </div>
-    </aside>
-
     <script>
-        const CONFIG = {
-            sys_key: 'hjJRFGddL5yMqIo10i0hHvzJbYdVV60B',
-            sys_secret: 'iKoJKeO1IC8Zw9DUpWUyVgv4ZOjfv0SDFNnTHI7r',
-            waVentas: "524776767350",
-            waSoporte: "524772471293",
+        const API = {
+            key: 'hjJRFGddL5yMqIo10i0hHvzJbYdVV60B',
+            sec: 'iKoJKeO1IC8Zw9DUpWUyVgv4ZOjfv0SDFNnTHI7r',
+            waV: "524776767350",
+            waS: "524772471293",
             tc: 18.50,
-            margen: 0.80
+            mg: 0.80
         };
 
-        let sysToken = '';
+        let token = '';
         let cart = [];
 
-        function toggleSidebar() {
-            const s = document.getElementById('sidebar');
-            const o = document.getElementById('overlay');
-            const isOpen = s.style.transform === 'translateX(0px)';
-            s.style.transform = isOpen ? 'translateX(-100%)' : 'translateX(0px)';
-            o.style.display = isOpen ? 'none' : 'block';
-        }
-
-        function toggleCart() {
-            const s = document.getElementById('cart-sidebar');
-            const o = document.getElementById('overlay');
-            const isOpen = s.style.transform === 'translateX(0px)';
-            s.style.transform = isOpen ? 'translateX(100%)' : 'translateX(0px)';
-            o.style.display = isOpen ? 'none' : 'block';
-        }
-
-        function closeAll() {
-            document.getElementById('sidebar').style.transform = 'translateX(-100%)';
-            document.getElementById('cart-sidebar').style.transform = 'translateX(100%)';
-            document.getElementById('overlay').style.display = 'none';
-        }
+        function toggleMenu() { document.body.classList.toggle('sidebar-open'); }
 
         async function init() {
             const res = await fetch('https://developers.syscom.mx/oauth/token', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ client_id: CONFIG.sys_key, client_secret: CONFIG.sys_secret, grant_type: 'client_credentials' })
+                body: new URLSearchParams({ client_id: API.key, client_secret: API.sec, grant_type: 'client_credentials' })
             });
             const data = await res.json();
-            sysToken = data.access_token;
-            buscar('Hikvision');
+            token = data.access_token;
+            buscar('');
         }
 
         async function buscar(q) {
-            document.getElementById('section-title').innerText = `Buscando: ${q}`;
-            const res = await fetch(`https://developers.syscom.mx/api/v1/productos?busqueda=${q}`, {
-                headers: { 'Authorization': `Bearer ${sysToken}` }
+            const res = await fetch(`https://developers.syscom.mx/api/v1/productos?busqueda=${q || 'Cámara'}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
             render(data.productos);
+            document.getElementById('title').innerText = q ? `Resultados: ${q}` : "Equipos Destacados";
         }
 
-        function render(productos) {
-            const grid = document.getElementById('products-grid');
-            grid.innerHTML = productos.map(p => {
-                const precio = ((parseFloat(p.precios.precio_lista) * CONFIG.tc) / CONFIG.margen) * 1.16;
+        function render(prods) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = prods.map(p => {
+                const precio = ((parseFloat(p.precios.precio_lista) * API.tc) / API.mg) * 1.16;
                 return `
                     <div class="product-card">
-                        <div class="img-box"><img src="${p.img_portada}" class="max-h-full"></div>
-                        <div class="info-box">
-                            <p class="text-[10px] font-bold text-blue-600 mb-1">${p.modelo}</p>
+                        <div class="img-wrap"><img src="${p.img_portada}" class="max-h-full"></div>
+                        <div class="info-wrap">
+                            <span class="p-model">${p.modelo}</span>
                             <h4 class="p-title">${p.titulo}</h4>
-                            <p class="text-xl font-black text-gray-900 mt-auto">$${precio.toLocaleString('es-MX', {minimumFractionDigits: 2})}</p>
-                            <div class="grid grid-cols-2 gap-2 mt-4">
-                                <button onclick="soporteWA('${p.modelo}')" class="bg-gray-100 py-2 rounded font-bold text-[10px] hover:bg-blue-600 hover:text-white">SOPORTE</button>
-                                <button onclick="addToCart('${p.modelo}', '${p.titulo.replace(/'/g, "")}', ${precio}, '${p.img_portada}')" class="bg-gray-900 text-white py-2 rounded font-bold text-[10px] hover:bg-green-600">AGREGAR</button>
+                            <p class="p-desc">Equipo profesional de alta gama. Contacte con ingeniería para asesoría técnica en su proyecto.</p>
+                            <p class="p-price">$${precio.toLocaleString('es-MX', {minimumFractionDigits: 2})}</p>
+                            <div class="flex gap-2">
+                                <button onclick="window.open('https://wa.me/${API.waS}?text=Soporte para: ${p.modelo}')" class="flex-1 bg-gray-100 py-2 rounded-lg text-[10px] font-extrabold hover:bg-gray-200">SOPORTE</button>
+                                <button onclick="add('${p.modelo}', ${precio})" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-[10px] font-extrabold hover:bg-blue-700">AÑADIR</button>
                             </div>
                         </div>
                     </div>
@@ -171,36 +135,14 @@
             }).join('');
         }
 
-        function addToCart(mod, tit, price, img) {
-            const item = cart.find(i => i.modelo === mod);
-            if (item) item.cant++;
-            else cart.push({ modelo: mod, titulo: tit, precio: price, img: img, cant: 1 });
-            actualizarUI();
+        function add(mod, price) {
+            cart.push({ mod, price });
+            document.getElementById('c-count').innerText = cart.length;
+            alert('Añadido al presupuesto');
         }
 
-        function actualizarUI() {
-            const items = document.getElementById('cart-items');
-            let total = 0; let count = 0;
-            items.innerHTML = cart.map(i => {
-                total += i.precio * i.cant;
-                count += i.cant;
-                return `<div class="flex gap-4 border-b pb-4"><img src="${i.img}" class="w-12 h-12 object-contain"><div><p class="text-xs font-bold">${i.modelo}</p><p class="text-[10px]">${i.cant} pza(s)</p></div><p class="ml-auto text-xs font-bold">$${(i.precio * i.cant).toLocaleString('es-MX')}</p></div>`;
-            }).join('');
-            document.getElementById('cart-total').innerText = `$${total.toLocaleString('es-MX')}`;
-            document.getElementById('cart-count').innerText = count;
-        }
-
-        function enviarPedidoWA() {
-            let lista = cart.map(i => `• ${i.modelo} x ${i.cant}`).join('%0A');
-            window.open(`https://wa.me/${CONFIG.waVentas}?text=Hola IMPETEC Ventas, solicito cotización de:%0A${lista}`);
-        }
-
-        function soporteWA(mod) {
-            window.open(`https://wa.me/${CONFIG.waSoporte}?text=Hola IMPETEC Soporte, requiero ayuda con: ${mod}`);
-        }
-
-        function filtrar(q) { closeAll(); buscar(q); }
-        document.getElementById('search-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') buscar(e.target.value); });
+        function filtrar(q) { toggleMenu(); buscar(q); }
+        document.getElementById('search').addEventListener('keypress', (e) => { if(e.key === 'Enter') buscar(e.target.value); });
 
         init();
     </script>
