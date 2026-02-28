@@ -3,26 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMPETEC | Distribuidor Autorizado</title>
+    <title>IMPETEC | Distribuidor Autorizado Syscom</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        :root { --sys-blue: #0056b3; --sys-dark: #1a1d21; --sys-gray: #f4f7f9; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #333; scroll-behavior: smooth; }
+        :root { --sys-blue: #0056b3; --sys-dark: #1a1d21; --sys-light: #f4f7f9; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--sys-light); color: #333; }
 
-        /* Sidebar Estilo Syscom */
-        #sidebar, #cart-sidebar { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; width: 350px; }
+        /* SIDEBAR RÉPLICA SYSCOM */
+        #sidebar { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 1000; width: 320px; background: white; border-right: 1px solid #ddd; }
         .sidebar-header { background: var(--sys-dark); color: white; padding: 25px; }
-        .nav-item { display: flex; align-items: center; padding: 12px 20px; border-bottom: 1px solid #eee; font-size: 13px; font-weight: 600; color: #444; transition: all 0.2s; }
-        .nav-item:hover { background: #f0f7ff; color: var(--sys-blue); padding-left: 25px; }
-        .nav-item i { width: 25px; font-size: 16px; margin-right: 10px; color: #888; }
-        .nav-item:hover i { color: var(--sys-blue); }
-
-        .sidebar-overlay { background: rgba(0,0,0,0.5); display: none; z-index: 900; backdrop-filter: blur(4px); }
-        .product-card { transition: all 0.3s; background: white; border: 1px solid #e2e8f0; border-radius: 12px; }
-        .product-card:hover { box-shadow: 0 15px 30px rgba(0,0,0,0.08); border-color: var(--sys-blue); }
-
+        .nav-group-title { background: #ebeef2; color: #555; padding: 10px 20px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #ddd; }
+        .nav-item { display: flex; align-items: center; padding: 12px 20px; font-size: 13px; font-weight: 600; color: #444; border-bottom: 1px solid #f0f0f0; transition: 0.2s; width: 100%; text-align: left; }
+        .nav-item:hover { background: #eef6ff; color: var(--sys-blue); padding-left: 28px; }
+        .nav-item i { width: 25px; color: #888; margin-right: 10px; font-size: 15px; }
+        
+        #cart-sidebar { transition: all 0.4s ease; z-index: 1000; width: 380px; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        .sidebar-overlay { background: rgba(0,0,0,0.4); display: none; z-index: 900; backdrop-filter: blur(4px); }
+        
+        .product-card { transition: all 0.3s; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+        .product-card:hover { transform: translateY(-8px); border-color: var(--sys-blue); box-shadow: 0 15px 30px rgba(0,0,0,0.06); }
+        
         #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); transition: 0.3s; z-index: 2000; }
         #toast.show { transform: translateX(-50%) translateY(0); }
     </style>
@@ -31,114 +33,100 @@
 
     <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0" onclick="closeAll()"></div>
 
-    <div id="toast" class="bg-blue-600 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-4">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="text-xs font-bold uppercase tracking-widest text-white">Agregado al presupuesto</span>
+    <div id="toast" class="bg-blue-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4">
+        <i class="fas fa-cart-plus text-lg"></i>
+        <span class="text-xs font-bold uppercase tracking-widest text-white">¡Añadido al presupuesto!</span>
     </div>
 
-    <aside id="sidebar" class="fixed left-0 top-0 h-full bg-white transform -translate-x-full overflow-y-auto flex flex-col shadow-2xl">
+    <aside id="sidebar" class="fixed left-0 top-0 h-full transform -translate-x-full overflow-y-auto flex flex-col">
         <div class="sidebar-header">
-            <div class="flex justify-between items-center mb-4">
-                <span class="font-extrabold tracking-tighter text-lg uppercase">Menú Principal</span>
-                <button onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-extrabold text-xl tracking-tighter italic">IMPETEC <span class="text-blue-500 font-black">PRO</span></span>
+                <button onclick="toggleSidebar()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <div class="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Plataforma de Distribución</div>
+            <p class="text-[9px] font-bold text-blue-400 uppercase tracking-[0.2em]">Engineering Solutions</p>
         </div>
 
         <nav class="flex-1">
-            <div class="bg-gray-100 px-5 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b">Categorías</div>
-            
-            <button onclick="filtrar('Cámara')" class="nav-item w-full">
-                <i class="fas fa-video"></i> Videovigilancia / CCTV
-            </button>
-            <button onclick="filtrar('Router')" class="nav-item w-full">
-                <i class="fas fa-network-wired"></i> Redes e Inalámbricos
-            </button>
-            <button onclick="filtrar('Acceso')" class="nav-item w-full">
-                <i class="fas fa-fingerprint"></i> Control de Acceso
-            </button>
-            <button onclick="filtrar('Alarma')" class="nav-item w-full">
-                <i class="fas fa-bell"></i> Alarmas e Intrusión
-            </button>
-            <button onclick="filtrar('Energía')" class="nav-item w-full">
-                <i class="fas fa-bolt"></i> Energía / Solar
-            </button>
-            <button onclick="filtrar('Cable')" class="nav-item w-full">
-                <i class="fas fa-ethernet"></i> Cableado Estructurado
-            </button>
+            <div class="nav-group-title">Departamentos</div>
+            <button onclick="filtrar('Videovigilancia')" class="nav-item"><i class="fas fa-video"></i> Videovigilancia / CCTV</button>
+            <button onclick="filtrar('Redes')" class="nav-item"><i class="fas fa-wifi"></i> Redes e Inalámbricos</button>
+            <button onclick="filtrar('Acceso')" class="nav-item"><i class="fas fa-id-card"></i> Control de Acceso</button>
+            <button onclick="filtrar('Alarmas')" class="nav-item"><i class="fas fa-shield-alt"></i> Alarmas e Intrusión</button>
+            <button onclick="filtrar('Energía')" class="nav-item"><i class="fas fa-solar-panel"></i> Energía y Solar</button>
+            <button onclick="filtrar('Cableado')" class="nav-item"><i class="fas fa-project-diagram"></i> Cableado Estructurado</button>
 
-            <div class="bg-gray-100 px-5 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b mt-4">Marcas Líderes</div>
-            <div class="p-4 grid grid-cols-2 gap-2">
-                <button onclick="filtrar('Hikvision')" class="p-3 border rounded hover:border-blue-500 transition-all"><img src="https://www.syscom.mx/img/marcas/hikvision.png" class="h-3 mx-auto"></button>
-                <button onclick="filtrar('Dahua')" class="p-3 border rounded hover:border-blue-500 transition-all"><img src="https://www.syscom.mx/img/marcas/dahua.png" class="h-3 mx-auto"></button>
-            </div>
+            <div class="nav-group-title">Marcas Premium</div>
+            <button onclick="filtrar('Hikvision')" class="nav-item font-bold text-red-600">HIKVISION</button>
+            <button onclick="filtrar('Ubiquiti')" class="nav-item font-bold text-blue-500">UBIQUITI</button>
+            <button onclick="filtrar('Epcom')" class="nav-item font-bold text-blue-800">EPCOM</button>
 
-            <div class="bg-gray-100 px-5 py-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-b mt-4">Centro de Ayuda</div>
-            <a href="https://wa.me/524772471293?text=Hola%2C%20buen%20d%C3%ADa.%20Requiero%20apoyo%20del%20departamento%20de%20Soporte%20T%C3%A9cnico%20para%20un%20proyecto." 
-               target="_blank" class="nav-item w-full text-blue-600 font-bold">
-                <i class="fas fa-headset text-blue-600"></i> Soporte de Ingeniería
+            <div class="nav-group-title">Centro de Ingeniería</div>
+            <a href="https://wa.me/524772471293?text=Hola%20equipo%20de%20Soporte%20T%C3%A9cnico%20de%20IMPETEC%2C%20buen%20d%C3%ADa.%20Solicito%20su%20amable%20asesor%C3%ADa%20con%20un%20proyecto." 
+               target="_blank" class="nav-item text-blue-600 bg-blue-50">
+                <i class="fas fa-headset text-blue-600"></i> Soporte Técnico (Ingeniería)
             </a>
         </nav>
-        
-        <div class="p-6 bg-gray-50 mt-auto border-t">
-            <p class="text-[10px] text-gray-400 font-bold uppercase text-center tracking-tighter">© 2024 IMPETEC - León, Gto.</p>
-        </div>
     </aside>
 
-    <aside id="cart-sidebar" class="fixed right-0 top-0 h-full bg-white transform translate-x-full flex flex-col shadow-2xl">
-        <div class="p-6 border-b flex justify-between items-center bg-gray-50">
+    <aside id="cart-sidebar" class="fixed right-0 top-0 h-full bg-white transform translate-x-full flex flex-col">
+        <div class="p-8 border-b flex justify-between items-center bg-gray-50">
             <div>
-                <h3 class="font-black text-lg">TU PEDIDO</h3>
+                <h3 class="font-black text-xl tracking-tight text-gray-800">PRESUPUESTO</h3>
                 <p id="items-total-count" class="text-[10px] font-bold text-blue-600 uppercase">0 Artículos</p>
             </div>
-            <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            <button onclick="toggleCart()" class="text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
         </div>
-        <div id="cart-items" class="flex-1 overflow-y-auto p-4 space-y-3 custom-scroll"></div>
-        <div class="p-6 border-t bg-white space-y-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]">
-            <div class="flex justify-between items-center">
-                <span class="font-bold text-gray-400 text-sm italic">Total aprox:</span>
-                <span class="text-2xl font-black text-slate-900" id="cart-total">$0.00</span>
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll"></div>
+        <div class="p-8 border-t bg-white space-y-4">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-gray-400 text-sm">Total Neto Estimado:</span>
+                <span class="text-3xl font-black text-slate-900" id="cart-total">$0.00</span>
             </div>
-            <button onclick="enviarPedidoWA()" class="w-full bg-green-600 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-green-700 transition-all shadow-xl flex items-center justify-center gap-3">
-                <i class="fab fa-whatsapp text-lg"></i> Solicitar Cotización Formal
+            <button onclick="enviarPedidoWA()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-green-700 transition-all shadow-xl flex items-center justify-center gap-3">
+                <i class="fab fa-whatsapp text-xl"></i> Solicitar a Ventas
             </button>
         </div>
     </aside>
 
-    <nav class="bg-white border-b sticky top-0 z-[100]">
-        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
-            <div class="flex items-center gap-6">
-                <button onclick="toggleSidebar()" class="w-10 h-10 flex items-center justify-center bg-gray-100 rounded-lg hover:bg-blue-600 hover:text-white transition-all">
-                    <i class="fas fa-bars"></i>
+    <nav class="bg-white border-b sticky top-0 z-[100] shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <button onclick="toggleSidebar()" class="w-12 h-12 flex items-center justify-center bg-gray-100 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+                    <i class="fas fa-bars-staggered"></i>
                 </button>
-                <img src="logo.png" onclick="irAlInicio()" class="h-8 cursor-pointer hidden md:block">
+                <img src="logo.png" onclick="irAlInicio()" class="h-10 cursor-pointer hidden md:block" alt="IMPETEC Logo">
             </div>
-            <div class="flex-1 max-w-xl mx-8">
+            <div class="flex-1 max-w-2xl mx-12">
                 <div class="relative group">
-                    <input type="text" id="search-input" placeholder="Buscar productos por modelo o nombre..." class="w-full bg-gray-100 border-2 border-transparent rounded-xl py-2 px-10 font-medium text-sm focus:bg-white focus:border-blue-500 outline-none transition-all">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="search-input" placeholder="Buscar modelo o tecnología..." class="w-full bg-gray-100 rounded-xl py-3 px-12 font-semibold text-sm focus:bg-white border-2 border-transparent focus:border-blue-500 outline-none transition-all">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors"></i>
                 </div>
             </div>
-            <button onclick="toggleCart()" class="relative w-10 h-10 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg">
-                <i class="fas fa-shopping-cart"></i>
-                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+            <button onclick="toggleCart()" class="relative w-12 h-12 flex items-center justify-center bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all">
+                <i class="fas fa-shopping-basket text-xl"></i>
+                <span id="cart-count" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full border-4 border-white">0</span>
             </button>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-10">
-        <header class="mb-10 flex items-baseline justify-between border-b pb-6">
-            <h2 class="text-3xl font-black text-gray-900 tracking-tight" id="section-title">Cargando catálogo...</h2>
-            <div id="loading-spinner" class="hidden animate-pulse text-blue-600 font-bold text-xs uppercase tracking-widest">Sincronizando con Syscom...</div>
+    <main class="max-w-7xl mx-auto px-6 py-12">
+        <header class="mb-12 border-b border-gray-200 pb-8 flex justify-between items-end">
+            <div>
+                <h2 class="text-4xl font-black text-gray-900 tracking-tighter" id="section-title">Actualizando Catálogo...</h2>
+                <p class="text-gray-400 text-xs font-bold mt-2 uppercase tracking-widest"><i class="fas fa-shield-alt text-blue-500 mr-2"></i> Precios en tiempo real</p>
+            </div>
+            <div id="loading-spinner" class="hidden flex items-center gap-3 text-blue-600 font-bold text-[10px] uppercase animate-pulse">
+                <i class="fas fa-sync-alt fa-spin"></i> API Syscom Live
+            </div>
         </header>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="products-grid"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="products-grid"></div>
     </main>
 
     <script>
         const CONFIG = {
             sys_key: 'hjJRFGddL5yMqIo10i0hHvzJbYdVV60B',
             sys_secret: 'iKoJKeO1IC8Zw9DUpWUyVgv4ZOjfv0SDFNnTHI7r',
-            proxy: "https://cors-anywhere.herokuapp.com/",
             waVentas: "524776767350",
             waSoporte: "524772471293",
             tc: 18.50,
@@ -180,7 +168,7 @@
             const safeTitle = tit.replace(/['"]/g, "");
             const item = cart.find(i => i.modelo === mod);
             if (item) item.cant++;
-            else cart.push({ modelo: mod, titulo: safeTitle, precio: price, img, cant: 1 });
+            else cart.push({ modelo: mod, titulo: safeTitle, precio: price, img: img, cant: 1 });
             actualizarUI();
             showToast();
         }
@@ -202,33 +190,35 @@
             let total = 0; let count = 0;
 
             if (cart.length === 0) {
-                container.innerHTML = '<p class="text-center py-10 text-gray-400 text-xs font-bold italic">Presupuesto vacío</p>';
+                container.innerHTML = '<div class="text-center py-20 opacity-20 text-xs font-black uppercase tracking-widest">No hay artículos</div>';
             } else {
                 container.innerHTML = cart.map(item => {
                     total += item.precio * item.cant;
                     count += item.cant;
                     return `
-                        <div class="bg-white p-4 rounded-xl border flex gap-3 items-center">
-                            <img src="${item.img}" class="w-12 h-12 object-contain">
+                        <div class="bg-gray-50 p-4 rounded-2xl flex gap-3 items-center border border-gray-100">
+                            <img src="${item.img}" class="w-14 h-14 object-contain mix-blend-multiply bg-white rounded-lg">
                             <div class="flex-1">
-                                <h5 class="text-[10px] font-bold leading-tight line-clamp-2">${item.titulo}</h5>
-                                <p class="text-[10px] font-black text-blue-600">${item.modelo}</p>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <button onclick="updateQuantity('${item.modelo}', -1)" class="w-5 h-5 bg-gray-100 rounded text-[10px]">-</button>
-                                    <span class="text-xs font-bold">${item.cant}</span>
-                                    <button onclick="updateQuantity('${item.modelo}', 1)" class="w-5 h-5 bg-gray-100 rounded text-[10px]">+</button>
+                                <h5 class="text-[10px] font-black leading-tight text-gray-700">${item.titulo}</h5>
+                                <p class="text-[9px] font-bold text-blue-600 mt-1">${item.modelo}</p>
+                                <div class="flex items-center gap-3 mt-2">
+                                    <div class="flex items-center bg-white border rounded-lg">
+                                        <button onclick="updateQuantity('${item.modelo}', -1)" class="px-2 text-gray-400">-</button>
+                                        <span class="px-2 text-xs font-bold text-gray-900">${item.cant}</span>
+                                        <button onclick="updateQuantity('${item.modelo}', 1)" class="px-2 text-gray-400">+</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <p class="text-xs font-black">$${(item.precio * item.cant).toLocaleString('es-MX')}</p>
-                                <button onclick="removeFromCart('${item.modelo}')" class="text-[8px] text-red-400 font-bold uppercase">X</button>
+                                <p class="text-xs font-black text-gray-900">$${(item.precio * item.cant).toLocaleString('es-MX')}</p>
+                                <button onclick="removeFromCart('${item.modelo}')" class="text-[8px] font-black text-red-300 hover:text-red-500 mt-2 uppercase">Quitar</button>
                             </div>
                         </div>
                     `;
                 }).join('');
             }
             countLabel.innerText = count;
-            itemsHeader.innerText = `${count} Artículos`;
+            itemsHeader.innerText = `${count} Artículos Seleccionados`;
             totalLabel.innerText = `$${total.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
         }
 
@@ -237,82 +227,88 @@
             actualizarUI();
         }
 
-        // --- MENSAJES AMABLES DE WHATSAPP ---
-        function enviarPedidoWA() {
-            if (cart.length === 0) return;
-            let total = 0;
-            let lista = "";
-            cart.forEach((i, idx) => {
-                lista += `• *${i.modelo}* (${i.cant} pza) - ${i.titulo}\n`;
-                total += i.precio * i.cant;
-            });
-
-            // Mensaje de Ventas amigable
-            const msg = `Hola equipo de *IMPETEC Ventas*, buen día. 👋\n\nMe gustaría solicitar una cotización formal de los siguientes productos que vi en su catálogo:\n\n${lista}\n*Total Estimado:* $${total.toLocaleString('es-MX')} MXN\n\n¿Podrían confirmarme disponibilidad y si existe algún descuento por volumen? Quedo atento, ¡muchas gracias!`;
-            
-            window.open(`https://wa.me/${CONFIG.waVentas}?text=${encodeURIComponent(msg)}`);
-        }
-
-        function soporteWA(mod, tit) {
-            // Mensaje de Soporte amigable
-            const msg = `Hola equipo de *Soporte Técnico*, buen día. 👋\n\nRequiero de su amable apoyo o asesoría técnica con el siguiente equipo:\n\n*Modelo:* ${mod}\n*Descripción:* ${tit}\n\n¿Podrían ayudarme con información sobre la configuración o compatibilidad? Muchas gracias por su tiempo.`;
-            
-            window.open(`https://wa.me/${CONFIG.waSoporte}?text=${encodeURIComponent(msg)}`);
-        }
-
         async function authSYSCOM() {
-            const res = await fetch(CONFIG.proxy + 'https://developers.syscom.mx/oauth/token', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({ client_id: CONFIG.sys_key, client_secret: CONFIG.sys_secret, grant_type: 'client_credentials' })
-            });
-            const data = await res.json();
-            sysToken = data.access_token;
+            try {
+                const res = await fetch('https://developers.syscom.mx/oauth/token', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ 
+                        client_id: CONFIG.sys_key, 
+                        client_secret: CONFIG.sys_secret, 
+                        grant_type: 'client_credentials' 
+                    })
+                });
+                const data = await res.json();
+                sysToken = data.access_token;
+                return true;
+            } catch (e) { return false; }
         }
 
         async function buscar(q) {
+            if (!sysToken) await authSYSCOM();
             document.getElementById('loading-spinner').classList.remove('hidden');
             const query = q || 'Hikvision';
             try {
-                const res = await fetch(`${CONFIG.proxy}https://developers.syscom.mx/api/v1/productos?busqueda=${query}`, { headers: { 'Authorization': `Bearer ${sysToken}` }});
+                const res = await fetch(`https://developers.syscom.mx/api/v1/productos?busqueda=${query}`, { 
+                    headers: { 'Authorization': `Bearer ${sysToken}` }
+                });
                 const data = await res.json();
                 render(data.productos, query);
+            } catch (e) {
+                document.getElementById('section-title').innerText = "Error de conexión con Syscom";
             } finally { document.getElementById('loading-spinner').classList.add('hidden'); }
         }
 
         function render(productos, query) {
             const grid = document.getElementById('products-grid');
             grid.innerHTML = '';
-            document.getElementById('section-title').innerText = query === 'Hikvision' ? "Lo más buscado" : `Resultados: ${query}`;
+            document.getElementById('section-title').innerText = query === 'Hikvision' ? "Equipos Destacados" : query;
 
             productos.forEach(p => {
                 const precio = ((parseFloat(p.precios.precio_descuento || p.precios.precio_lista) * CONFIG.tc) / CONFIG.margen) * 1.16;
                 const safeTitle = p.titulo.replace(/['"]/g, "");
 
                 grid.innerHTML += `
-                    <div class="product-card p-4 flex flex-col group">
-                        <div class="relative mb-4 bg-gray-50 rounded-xl p-4 h-48 flex items-center justify-center cursor-pointer overflow-hidden" onclick="window.open('${p.link_privado}', '_blank')">
-                            <img src="${p.img_portada}" class="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-all">
-                            <span class="absolute top-2 right-2 bg-white px-2 py-1 rounded-md text-[8px] font-bold text-blue-600 border uppercase shadow-sm">${p.marca}</span>
+                    <div class="product-card p-5 flex flex-col">
+                        <div class="relative mb-6 bg-gray-50 rounded-2xl p-6 h-52 flex items-center justify-center cursor-pointer group" onclick="window.open('${p.link_privado}', '_blank')">
+                            <img src="${p.img_portada}" class="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
+                            <span class="absolute top-3 right-3 bg-white px-2 py-1 rounded-md text-[8px] font-black text-blue-600 border border-gray-100 shadow-sm uppercase">${p.marca}</span>
                         </div>
                         <div class="flex-1">
-                            <p class="text-[10px] font-black text-blue-500 uppercase tracking-tighter mb-1">${p.modelo}</p>
-                            <h4 class="font-bold text-gray-800 text-xs leading-snug line-clamp-2 h-8 mb-4">${p.titulo}</h4>
-                            <p class="text-xl font-black text-gray-900 mb-4">$${precio.toLocaleString('es-MX', {minimumFractionDigits: 2})}</p>
+                            <p class="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1">${p.modelo}</p>
+                            <h4 class="font-bold text-gray-800 text-xs leading-tight line-clamp-2 h-8 mb-6">${p.titulo}</h4>
+                            <p class="text-2xl font-black text-gray-900 mb-6">$${precio.toLocaleString('es-MX', {minimumFractionDigits: 2})}</p>
                         </div>
-                        <div class="grid grid-cols-2 gap-2 mt-auto">
+                        <div class="grid grid-cols-2 gap-3 mt-auto">
                             <button onclick="soporteWA('${p.modelo}', '${safeTitle}')" class="bg-gray-100 text-gray-600 py-3 rounded-xl font-bold text-[9px] uppercase hover:bg-blue-600 hover:text-white transition-all">Soporte</button>
-                            <button onclick="addToCart('${p.modelo}', '${safeTitle}', ${precio}, '${p.img_portada}')" class="bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase hover:bg-green-600 transition-all">Agregar</button>
+                            <button onclick="addToCart('${p.modelo}', '${safeTitle}', ${precio}, '${p.img_portada}')" class="bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase hover:bg-green-600 transition-all shadow-lg">Agregar</button>
                         </div>
                     </div>
                 `;
             });
         }
 
+        function enviarPedidoWA() {
+            if (cart.length === 0) return;
+            let total = 0; let lista = "";
+            cart.forEach(i => {
+                lista += `• *${i.modelo}* (${i.cant} pza) - ${i.titulo}\n`;
+                total += i.precio * i.cant;
+            });
+            const msg = `Hola equipo de *IMPETEC Ventas*, buen día. 👋\n\nMe gustaría solicitar una cotización formal de los siguientes productos:\n\n${lista}\n*Total Neto Estimado:* $${total.toLocaleString('es-MX')} MXN\n\nQuedo atento a su amable respuesta, ¡muchas gracias!`;
+            window.open(`https://wa.me/${CONFIG.waVentas}?text=${encodeURIComponent(msg)}`);
+        }
+
+        function soporteWA(mod, tit) {
+            const msg = `Hola equipo de *Soporte Técnico*, buen día. 👋\n\nRequiero de su amable apoyo o asesoría técnica con el siguiente equipo:\n\n*Modelo:* ${mod}\n*Descripción:* ${tit}\n\nMuchas gracias por su atención y ayuda.`;
+            window.open(`https://wa.me/${CONFIG.waSoporte}?text=${encodeURIComponent(msg)}`);
+        }
+
         function filtrar(q) { closeAll(); buscar(q); window.scrollTo({top:0, behavior:'smooth'}); }
         function irAlInicio() { buscar('Hikvision'); window.scrollTo({top:0, behavior:'smooth'}); }
         document.getElementById('search-input').addEventListener('keypress', (e) => { if (e.key === 'Enter') buscar(e.target.value); });
-        (async () => { await authSYSCOM(); buscar(''); })();
+
+        (async () => { await buscar(''); })();
     </script>
 </body>
 </html>
