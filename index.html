@@ -12,15 +12,18 @@
         .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05); border-color: #3b82f6; }
         .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%); }
+        .logo-btn { transition: transform 0.2s ease; }
+        .logo-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-24 flex justify-between items-center">
-            <div class="flex items-center gap-3">
+            
+            <a href="javascript:void(0)" onclick="irAlInicio()" class="flex items-center gap-3 logo-btn">
                 <img src="logo.png" alt="IMPETEC" class="h-14 w-auto object-contain">
-            </div>
+            </a>
 
             <div class="flex-1 max-w-lg mx-8">
                 <div class="relative">
@@ -113,7 +116,7 @@
                     productosAMostrar = [productosAMostrar[randomIndex]];
                     document.getElementById('section-title').innerText = "Recomendación para ti";
                 } else {
-                    document.getElementById('section-title').innerText = query === 'Hikvision' ? "Productos Destacados" : `Resultados para: ${query}`;
+                    document.getElementById('section-title').innerText = (query === 'Hikvision' || query === '') ? "Productos Destacados" : `Resultados para: ${query}`;
                 }
 
                 renderizar(productosAMostrar);
@@ -124,8 +127,14 @@
             }
         }
 
+        // Función para resetear la página al estado inicial
+        function irAlInicio() {
+            document.getElementById('search-input').value = '';
+            buscar('Hikvision');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
         function verNovedadesAleatorias() {
-            // Buscamos algo general para tener variedad y luego elegimos uno al azar
             buscar('Camara', true);
         }
 
@@ -136,8 +145,6 @@
             productos.forEach(p => {
                 const costoUSD = parseFloat(p.precios.precio_descuento || p.precios.precio_lista) || 0;
                 const precioFinal = ((costoUSD * CONFIG.tipoCambio) / CONFIG.margen) * 1.16;
-                
-                // Link de ficha técnica basado en el formato de SYSCOM
                 const linkFicha = p.link_privado || `https://www.syscom.mx/producto/${p.modelo.replace(/ /g, "-")}.html`;
 
                 if(precioFinal > 0) {
