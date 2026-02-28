@@ -3,198 +3,442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMPETEC - Soluciones Tecnológicas</title>
+    <title>IMPETEC | Soluciones Tecnológicas de Alto Nivel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; }
-        .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05); border-color: #3b82f6; }
-        .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%); }
-        .logo-btn { transition: transform 0.2s ease; }
-        .logo-btn:active { transform: scale(0.95); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --success: #10b981;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background: #f8fafc; 
+            color: var(--primary);
+            scroll-behavior: smooth;
+        }
+
+        /* Sidebars Modernos */
+        #sidebar, #cart-sidebar { 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            z-index: 1000; 
+            width: 380px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-overlay { 
+            background: rgba(15, 23, 42, 0.6); 
+            display: none; 
+            z-index: 900; 
+            backdrop-filter: blur(8px); 
+        }
+
+        /* Cards Estilo Glass */
+        .product-card { 
+            transition: all 0.4s ease; 
+            background: white; 
+            border: 1px solid #f1f5f9;
+            border-radius: 2.5rem;
+            overflow: hidden;
+        }
+
+        .product-card:hover { 
+            transform: translateY(-12px); 
+            box-shadow: 0 30px 60px -15px rgba(15, 23, 42, 0.1);
+            border-color: var(--accent);
+        }
+
+        /* Notificación Toast */
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Animaciones */
+        @keyframes pulse-soft { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .live-dot { animation: pulse-soft 2s infinite; }
+
+        .custom-scroll::-webkit-scrollbar { width: 5px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
 <body>
 
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-24 flex justify-between items-center">
-            
-            <a href="javascript:void(0)" onclick="irAlInicio()" class="flex items-center gap-3 logo-btn">
-                <img src="logo.png" alt="IMPETEC" class="h-14 w-auto object-contain">
-            </a>
+    <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0" onclick="closeAll()"></div>
 
-            <div class="flex-1 max-w-lg mx-8">
-                <div class="relative">
-                    <input type="text" id="search-input" placeholder="¿Qué equipo estás buscando hoy?" 
-                        class="w-full bg-slate-100 border-none rounded-2xl py-3 px-12 font-semibold text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+    <div id="toast" class="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4">
+        <div class="bg-green-500 rounded-full p-1"><i class="fas fa-check text-[10px]"></i></div>
+        <span class="text-xs font-bold uppercase tracking-widest">Producto añadido al pedido</span>
+    </div>
+
+    <aside id="sidebar" class="fixed left-0 top-0 h-full bg-white transform -translate-x-full overflow-hidden flex flex-col">
+        <div class="p-8 bg-slate-900 text-white">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-xl font-black tracking-tighter italic">IMPETEC <span class="text-blue-500">PRO</span></span>
+                <button onclick="toggleSidebar()" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-all">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl">
+                <div class="w-2 h-2 bg-green-500 rounded-full live-dot"></div>
+                <span class="text-[10px] font-bold uppercase tracking-tighter">Soporte Técnico en línea</span>
+            </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll p-6 space-y-8">
+            <div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Soluciones por sector</p>
+                <div class="grid gap-2">
+                    <button onclick="filtrar('Cámara')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+                        <i class="fas fa-video text-blue-600 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-bold text-sm">Videovigilancia Urbana</span>
+                    </button>
+                    <button onclick="filtrar('Router')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+                        <i class="fas fa-network-wired text-indigo-600 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-bold text-sm">Redes Enterprise</span>
+                    </button>
+                    <button onclick="filtrar('Acceso')" class="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+                        <i class="fas fa-fingerprint text-emerald-600 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-bold text-sm">Control de Acceso</span>
+                    </button>
                 </div>
             </div>
 
+            <div class="p-5 bg-blue-50 rounded-[2rem] border border-blue-100">
+                <h4 class="font-black text-blue-900 text-xs uppercase mb-2">Servicios Expertos</h4>
+                <ul class="space-y-3">
+                    <li class="flex items-center gap-2 text-[11px] font-bold text-blue-700"><i class="fas fa-tools opacity-50"></i> Instalación Profesional</li>
+                    <li class="flex items-center gap-2 text-[11px] font-bold text-blue-700"><i class="fas fa-shield-check opacity-50"></i> Pólizas de Mantenimiento</li>
+                    <li class="flex items-center gap-2 text-[11px] font-bold text-blue-700"><i class="fas fa-project-diagram opacity-50"></i> Ingeniería de Proyecto</li>
+                </ul>
+            </div>
+
             <div>
-                <a href="https://wa.me/524772471293?text=Hola,%20necesito%20soporte%20técnico." target="_blank" 
-                   class="bg-blue-50 text-blue-600 px-5 py-3 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2 border border-blue-100">
-                    <i class="fas fa-tools text-sm"></i>
-                    Soporte Técnico
-                </a>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Alianzas Estratégicas</p>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="filtrar('Hikvision')" class="p-4 border rounded-2xl hover:border-blue-500 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all"><img src="https://www.syscom.mx/img/marcas/hikvision.png" class="h-4 mx-auto"></button>
+                    <button onclick="filtrar('Dahua')" class="p-4 border rounded-2xl hover:border-blue-500 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all"><img src="https://www.syscom.mx/img/marcas/dahua.png" class="h-4 mx-auto"></button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <aside id="cart-sidebar" class="fixed right-0 top-0 h-full bg-white transform translate-x-full flex flex-col">
+        <div class="p-8 border-b flex justify-between items-center bg-slate-50/50">
+            <div>
+                <h3 class="font-black text-xl tracking-tighter">LISTA DE PEDIDO</h3>
+                <p id="items-total-count" class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">0 Artículos seleccionados</p>
+            </div>
+            <button onclick="toggleCart()" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
+        </div>
+
+        <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll">
+            <div class="text-center py-20">
+                <i class="fas fa-shopping-basket text-4xl text-slate-100 mb-4"></i>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Tu carrito está vacío</p>
+            </div>
+        </div>
+
+        <div class="p-8 border-t bg-white shadow-[0_-10px_40px_rgba(0,0,0,0.03)] space-y-6">
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-slate-400 text-sm">Presupuesto Estimado:</span>
+                <span class="text-3xl font-black text-slate-900" id="cart-total">$0.00</span>
+            </div>
+            <div class="space-y-3">
+                <button onclick="enviarPedidoWA()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-green-600 transition-all shadow-xl shadow-slate-200 flex items-center justify-center gap-3">
+                    <i class="fab fa-whatsapp text-xl"></i> Solicitar Cotización
+                </button>
+                <p class="text-[9px] text-center text-slate-400 font-bold px-4 leading-relaxed">
+                    * Los precios incluyen IVA y están sujetos a cambios según el tipo de cambio del día.
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    <nav class="bg-white/90 backdrop-blur-xl border-b border-slate-100 sticky top-0 z-[100]">
+        <div class="max-w-7xl mx-auto px-6 h-24 flex justify-between items-center">
+            <div class="flex items-center gap-8">
+                <button onclick="toggleSidebar()" class="w-14 h-14 flex items-center justify-center bg-slate-900 text-white rounded-2xl hover:bg-blue-600 transition-all shadow-lg shadow-blue-100">
+                    <i class="fas fa-bars-staggered"></i>
+                </button>
+                <img src="logo.png" onclick="irAlInicio()" class="h-12 cursor-pointer hover:scale-105 transition-transform">
+            </div>
+
+            <div class="flex-1 max-w-2xl mx-12 hidden lg:block">
+                <div class="relative group">
+                    <input type="text" id="search-input" placeholder="Buscar por modelo, marca o solución..." 
+                        class="w-full bg-slate-100 border-2 border-transparent rounded-2xl py-4 px-14 font-semibold text-sm focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-50 outline-none transition-all">
+                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500"></i>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleCart()" class="relative w-14 h-14 flex items-center justify-center bg-blue-50 text-blue-600 rounded-2xl hover:bg-blue-600 hover:text-white transition-all group shadow-sm">
+                    <i class="fas fa-cart-shopping text-xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black w-6 h-6 flex items-center justify-center rounded-full border-4 border-white shadow-lg">0</span>
+                </button>
             </div>
         </div>
     </nav>
 
-    <section class="max-w-7xl mx-auto px-4 mt-8">
-        <div class="hero-gradient rounded-[2.5rem] p-10 md:p-16 text-white relative overflow-hidden shadow-2xl shadow-blue-200">
-            <div class="relative z-10 max-w-2xl">
-                <span class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 inline-block">Tecnología de Vanguardia</span>
-                <h2 class="text-4xl md:text-5xl font-extrabold leading-tight mb-4">Seguridad y Redes <br> para tu Hogar o Empresa</h2>
-                <p class="text-blue-100 text-sm md:text-base font-medium mb-8 opacity-80">Explora nuestro catálogo con los mejores equipos de videovigilancia y telecomunicaciones.</p>
-                <div class="flex gap-4">
-                    <button onclick="verNovedadesAleatorias()" class="bg-white text-blue-600 px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-lg hover:scale-105 transition-transform">Ver Novedades</button>
+    <main class="max-w-7xl mx-auto px-6 py-16">
+        <header class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
+            <div>
+                <h2 class="text-5xl font-black text-slate-900 tracking-tighter mb-4" id="section-title">Portafolio Tecnológico</h2>
+                <div class="flex flex-wrap gap-4">
+                    <span class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border text-[10px] font-bold text-slate-500 uppercase tracking-widest"><i class="fas fa-shield-check text-green-500"></i> Distribuidor Autorizado</span>
+                    <span class="flex items-center gap-2 px-4 py-2 bg-white rounded-full border text-[10px] font-bold text-slate-500 uppercase tracking-widest"><i class="fas fa-truck-fast text-blue-500"></i> Stock Centralizado</span>
                 </div>
             </div>
-            <i class="fas fa-shield-alt absolute -right-10 -bottom-10 text-[20rem] text-white/10 rotate-12"></i>
-        </div>
-    </section>
-
-    <main class="max-w-7xl mx-auto px-4 py-12">
-        <div class="flex items-center justify-between mb-8">
-            <h3 class="text-xl font-extrabold text-slate-900 tracking-tight" id="section-title">Productos Destacados</h3>
-            <div id="loading-spinner" class="hidden">
-                <div class="animate-spin rounded-full h-5 w-5 border-2 border-blue-600 border-t-transparent"></div>
+            <div id="loading-spinner" class="hidden flex items-center gap-4 bg-white px-8 py-4 rounded-3xl shadow-xl border border-blue-50">
+                <div class="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+                <span class="text-[10px] font-black uppercase text-slate-600 tracking-widest">Sincronizando Almacenes</span>
             </div>
-        </div>
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="products-grid"></div>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12" id="products-grid"></div>
     </main>
 
     <script>
         const CONFIG = {
-            key: 'hjJRFGddL5yMqIo10i0hHvzJbYdVV60B',
-            secret: 'iKoJKeO1IC8Zw9DUpWUyVgv4ZOjfv0SDFNnTHI7r',
+            sys_key: 'hjJRFGddL5yMqIo10i0hHvzJbYdVV60B',
+            sys_secret: 'iKoJKeO1IC8Zw9DUpWUyVgv4ZOjfv0SDFNnTHI7r',
             proxy: "https://cors-anywhere.herokuapp.com/",
             waVentas: "524776767350",
-            tipoCambio: 18.50, 
+            tc: 18.50,
             margen: 0.80
         };
 
-        let token = '';
+        let sysToken = '';
+        let cart = [];
 
-        async function iniciar() {
+        // --- FUNCIONES CORE ---
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar');
+            const o = document.getElementById('sidebar-overlay');
+            const isOpen = s.style.transform === 'translateX(0px)';
+            s.style.transform = isOpen ? 'translateX(-100%)' : 'translateX(0px)';
+            o.style.display = isOpen ? 'none' : 'block';
+        }
+
+        function toggleCart() {
+            const s = document.getElementById('cart-sidebar');
+            const o = document.getElementById('sidebar-overlay');
+            const isOpen = s.style.transform === 'translateX(0px)';
+            s.style.transform = isOpen ? 'translateX(100%)' : 'translateX(0px)';
+            o.style.display = isOpen ? 'none' : 'block';
+        }
+
+        function closeAll() {
+            document.getElementById('sidebar').style.transform = 'translateX(-100%)';
+            document.getElementById('cart-sidebar').style.transform = 'translateX(100%)';
+            document.getElementById('sidebar-overlay').style.display = 'none';
+        }
+
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // --- LÓGICA DEL CARRITO PRO ---
+        function addToCart(mod, tit, price, img) {
+            const safeTitle = tit.replace(/['"]/g, "");
+            const item = cart.find(i => i.modelo === mod);
+            
+            if (item) {
+                item.cant++;
+            } else {
+                cart.push({ modelo: mod, titulo: safeTitle, precio: price, img: img, cant: 1 });
+            }
+            
+            actualizarUI();
+            showToast();
+            
+            // Animación del badge del carrito
+            const count = document.getElementById('cart-count');
+            count.classList.remove('scale-150');
+            void count.offsetWidth;
+            count.classList.add('transition-all', 'scale-150');
+            setTimeout(() => count.classList.remove('scale-150'), 200);
+        }
+
+        function updateQuantity(mod, delta) {
+            const item = cart.find(i => i.modelo === mod);
+            if (item) {
+                item.cant += delta;
+                if (item.cant < 1) cart = cart.filter(i => i.modelo !== mod);
+                actualizarUI();
+            }
+        }
+
+        function actualizarUI() {
+            const container = document.getElementById('cart-items');
+            const totalLabel = document.getElementById('cart-total');
+            const countLabel = document.getElementById('cart-count');
+            const itemsHeader = document.getElementById('items-total-count');
+            
+            let total = 0;
+            let itemsCount = 0;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20">
+                        <i class="fas fa-shopping-basket text-4xl text-slate-100 mb-4"></i>
+                        <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Tu carrito está vacío</p>
+                    </div>`;
+            } else {
+                container.innerHTML = cart.map(item => {
+                    total += item.precio * item.cant;
+                    itemsCount += item.cant;
+                    return `
+                        <div class="bg-slate-50 p-5 rounded-[2rem] border border-slate-100 group transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-100">
+                            <div class="flex gap-5 mb-4">
+                                <div class="w-20 h-20 bg-white rounded-2xl p-2 flex-shrink-0 border border-slate-50">
+                                    <img src="${item.img}" class="w-full h-full object-contain mix-blend-multiply">
+                                </div>
+                                <div class="flex-1">
+                                    <h5 class="text-[11px] font-black text-slate-800 leading-tight mb-1">${item.titulo}</h5>
+                                    <p class="text-[9px] font-bold text-blue-600 mb-2">${item.modelo}</p>
+                                    <p class="text-lg font-black">$${(item.precio * item.cant).toLocaleString('es-MX', {minimumFractionDigits: 2})}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center bg-white rounded-xl border p-1">
+                                    <button onclick="updateQuantity('${item.modelo}', -1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 transition-colors"><i class="fas fa-minus text-[10px]"></i></button>
+                                    <span class="w-10 text-center text-xs font-black">${item.cant}</span>
+                                    <button onclick="updateQuantity('${item.modelo}', 1)" class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors"><i class="fas fa-plus text-[10px]"></i></button>
+                                </div>
+                                <button onclick="removeFromCart('${item.modelo}')" class="text-[9px] font-black text-slate-300 hover:text-red-500 uppercase tracking-widest transition-colors">Remover</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            countLabel.innerText = itemsCount;
+            itemsHeader.innerText = `${itemsCount} Artículos seleccionados`;
+            totalLabel.innerText = `$${total.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+        }
+
+        function removeFromCart(mod) {
+            cart = cart.filter(i => i.modelo !== mod);
+            actualizarUI();
+        }
+
+        // --- WHATSAPP MEJORADO (ORDENADO Y SIN SUBTOTALES POR PIEZA) ---
+        function enviarPedidoWA() {
+            if (cart.length === 0) return alert("Por favor selecciona algún producto.");
+            
+            let msg = `*🚀 SOLICITUD DE COTIZACIÓN - IMPETEC*\n`;
+            msg += `------------------------------------------\n`;
+            msg += `Hola, me interesa formalizar un pedido de los siguientes equipos:\n\n`;
+            
+            let total = 0;
+            cart.forEach((i, idx) => {
+                msg += `*${idx + 1}.* [${i.modelo}] x ${i.cant} pza(s)\n`;
+                msg += `   _Desc: ${i.titulo}_\n\n`;
+                total += i.precio * i.cant;
+            });
+            
+            msg += `*💰 TOTAL ESTIMADO:* $${total.toLocaleString('es-MX', {minimumFractionDigits: 2})} MXN\n`;
+            msg += `------------------------------------------\n`;
+            msg += `¿Cuentan con existencias para envío inmediato?`;
+            
+            window.open(`https://wa.me/${CONFIG.waVentas}?text=${encodeURIComponent(msg)}`);
+        }
+
+        // --- BÚSQUEDA Y RENDER ---
+        async function authSYSCOM() {
             try {
                 const res = await fetch(CONFIG.proxy + 'https://developers.syscom.mx/oauth/token', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: new URLSearchParams({
-                        client_id: CONFIG.key,
-                        client_secret: CONFIG.secret,
-                        grant_type: 'client_credentials'
-                    })
+                    body: new URLSearchParams({ client_id: CONFIG.sys_key, client_secret: CONFIG.sys_secret, grant_type: 'client_credentials' })
                 });
                 const data = await res.json();
-                token = data.access_token;
-                buscar('Hikvision'); 
-            } catch (err) { console.error("Error Auth"); }
+                sysToken = data.access_token;
+            } catch (e) { console.error("Error de conexión con Syscom"); }
         }
 
-        async function buscar(query, esAleatorio = false) {
-            if (!token) return;
-            const grid = document.getElementById('products-grid');
-            const spinner = document.getElementById('loading-spinner');
-            spinner.classList.remove('hidden');
-
+        async function buscar(q) {
+            document.getElementById('loading-spinner').classList.remove('hidden');
+            const query = q || 'Hikvision';
             try {
-                const res = await fetch(`${CONFIG.proxy}https://developers.syscom.mx/api/v1/productos?busqueda=${query}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const res = await fetch(`${CONFIG.proxy}https://developers.syscom.mx/api/v1/productos?busqueda=${query}`, { headers: { 'Authorization': `Bearer ${sysToken}` }});
                 const data = await res.json();
-                
-                let productosAMostrar = data.productos;
-
-                if (esAleatorio && productosAMostrar.length > 0) {
-                    const randomIndex = Math.floor(Math.random() * productosAMostrar.length);
-                    productosAMostrar = [productosAMostrar[randomIndex]];
-                    document.getElementById('section-title').innerText = "Recomendación para ti";
-                } else {
-                    document.getElementById('section-title').innerText = (query === 'Hikvision' || query === '') ? "Productos Destacados" : `Resultados para: ${query}`;
-                }
-
-                renderizar(productosAMostrar);
-            } catch (err) {
-                grid.innerHTML = '<p class="col-span-full text-center py-20 text-slate-400 font-bold">Error al conectar.</p>';
-            } finally {
-                spinner.classList.add('hidden');
-            }
+                render(data.productos, query);
+            } finally { document.getElementById('loading-spinner').classList.add('hidden'); }
         }
 
-        // Función para resetear la página al estado inicial
-        function irAlInicio() {
-            document.getElementById('search-input').value = '';
-            buscar('Hikvision');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function verNovedadesAleatorias() {
-            buscar('Camara', true);
-        }
-
-        function renderizar(productos) {
+        function render(productos, query) {
             const grid = document.getElementById('products-grid');
-            grid.innerHTML = '';
+            grid.innerHTML = productos.length ? '' : '<div class="col-span-full text-center py-20 opacity-20 font-black">SIN RESULTADOS</div>';
+            document.getElementById('section-title').innerText = query === 'Hikvision' ? "Equipos Destacados" : query;
 
             productos.forEach(p => {
-                const costoUSD = parseFloat(p.precios.precio_descuento || p.precios.precio_lista) || 0;
-                const precioFinal = ((costoUSD * CONFIG.tipoCambio) / CONFIG.margen) * 1.16;
-                const linkFicha = p.link_privado || `https://www.syscom.mx/producto/${p.modelo.replace(/ /g, "-")}.html`;
+                const precio = ((parseFloat(p.precios.precio_descuento || p.precios.precio_lista) * CONFIG.tc) / CONFIG.margen) * 1.16;
+                const safeTitle = p.titulo.replace(/['"]/g, "");
+                const stock = parseInt(p.total_existencia || 0);
 
-                if(precioFinal > 0) {
-                    grid.innerHTML += `
-                        <div class="product-card bg-white rounded-[2rem] p-6 flex flex-col border border-slate-100">
-                            <div class="relative mb-6 bg-slate-50 rounded-[1.5rem] p-4 h-52 flex items-center justify-center cursor-pointer" onclick="window.open('${linkFicha}', '_blank')">
-                                <img src="${p.img_portada}" class="max-h-full object-contain mix-blend-multiply">
-                                <span class="absolute top-3 right-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[9px] font-black text-blue-600 border border-blue-50 uppercase italic tracking-tighter">
-                                    ${p.marca}
-                                </span>
-                            </div>
+                grid.innerHTML += `
+                    <div class="product-card p-6 flex flex-col group">
+                        <div class="relative mb-8 bg-slate-50 rounded-[2.5rem] p-6 h-64 flex items-center justify-center cursor-pointer overflow-hidden" onclick="window.open('${p.link_privado}', '_blank')">
+                            <img src="${p.img_portada}" class="max-h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500">
+                            <span class="absolute top-6 right-6 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[8px] font-black text-blue-600 border border-slate-100 uppercase tracking-widest shadow-sm">${p.marca}</span>
                             
-                            <div class="flex-1 px-1">
-                                <p class="text-[10px] font-black text-blue-600 uppercase mb-1">${p.modelo}</p>
-                                <h4 class="font-bold text-slate-800 text-[13px] leading-snug line-clamp-2 h-10">${p.titulo}</h4>
-                            </div>
+                            ${stock > 0 ? 
+                                `<div class="absolute bottom-6 left-6 bg-green-500/10 text-green-600 px-3 py-1 rounded-full text-[8px] font-black uppercase flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-green-500 rounded-full live-dot"></div> ${stock} En Stock
+                                </div>` : 
+                                `<div class="absolute bottom-6 left-6 bg-orange-500/10 text-orange-600 px-3 py-1 rounded-full text-[8px] font-black uppercase">Bajo pedido</div>`
+                            }
+                        </div>
 
-                            <div class="mt-6 pt-6 border-t border-slate-50">
-                                <div class="flex items-baseline gap-1">
-                                    <span class="text-2xl font-black text-slate-900">$${precioFinal.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase">MXN</span>
-                                </div>
-                                
-                                <div class="grid grid-cols-2 gap-2 mt-5">
-                                    <button onclick="window.open('${linkFicha}', '_blank')" 
-                                        class="bg-slate-100 text-slate-700 py-3 rounded-xl font-bold text-[9px] uppercase hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center gap-1">
-                                        <i class="fas fa-file-pdf"></i> Ficha
-                                    </button>
-                                    <button onclick="enviarWA('${p.modelo}', '${p.titulo}')" 
-                                        class="bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase flex items-center justify-center gap-2 hover:bg-blue-600 transition-all shadow-lg shadow-slate-200">
-                                        <i class="fab fa-whatsapp text-green-400"></i> Comprar
-                                    </button>
-                                </div>
+                        <div class="flex-1 px-2">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-[10px] font-black text-blue-500 uppercase tracking-widest">${p.modelo}</p>
+                                <i class="fas fa-ellipsis-h text-slate-200"></i>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-[15px] leading-snug line-clamp-2 h-10 mb-6 group-hover:text-blue-600 transition-colors">${p.titulo}</h4>
+                        </div>
+
+                        <div class="mt-auto pt-6 border-t border-slate-50">
+                            <div class="flex items-baseline gap-1 mb-6">
+                                <span class="text-3xl font-black text-slate-900">$${precio.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">MXN</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-3">
+                                <button onclick="window.open('${p.link_privado}', '_blank')" class="col-span-1 bg-slate-50 text-slate-400 h-14 rounded-2xl flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all">
+                                    <i class="fas fa-info"></i>
+                                </button>
+                                <button onclick="addToCart('${p.modelo}', '${safeTitle}', ${precio}, '${p.img_portada}')" 
+                                    class="col-span-4 bg-slate-900 text-white h-14 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 active:scale-95">
+                                    <i class="fas fa-plus-circle"></i> Agregar al pedido
+                                </button>
                             </div>
                         </div>
-                    `;
-                }
+                    </div>
+                `;
             });
         }
 
-        function enviarWA(mod, tit) {
-            const msg = `Hola Impetec, me interesa:\nModelo: ${mod}\nDesc: ${tit}\n¿Tienen disponibilidad?`;
-            window.open(`https://wa.me/${CONFIG.waVentas}?text=${encodeURIComponent(msg)}`);
-        }
+        // --- EVENTOS ---
+        function filtrar(q) { closeAll(); buscar(q); window.scrollTo({top:0, behavior:'smooth'}); }
+        function irAlInicio() { buscar('Hikvision'); window.scrollTo({top:0, behavior:'smooth'}); }
+        document.getElementById('search-input').addEventListener('keypress', (e) => { if(e.key === 'Enter') buscar(e.target.value); });
 
-        document.getElementById('search-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') buscar(e.target.value);
-        });
-
-        iniciar();
+        (async () => { await authSYSCOM(); buscar(''); })();
     </script>
 </body>
 </html>
