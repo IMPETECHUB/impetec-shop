@@ -11,8 +11,6 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #1e293b; }
         .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #f1f5f9; }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.05); border-color: #3b82f6; }
-        
-        /* Banner Style */
         .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%); }
     </style>
 </head>
@@ -47,9 +45,9 @@
             <div class="relative z-10 max-w-2xl">
                 <span class="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 inline-block">Tecnología de Vanguardia</span>
                 <h2 class="text-4xl md:text-5xl font-extrabold leading-tight mb-4">Seguridad y Redes <br> para tu Hogar o Empresa</h2>
-                <p class="text-blue-100 text-sm md:text-base font-medium mb-8 opacity-80">Explora nuestro catálogo con los mejores equipos de videovigilancia, control de acceso y telecomunicaciones.</p>
+                <p class="text-blue-100 text-sm md:text-base font-medium mb-8 opacity-80">Explora nuestro catálogo con los mejores equipos de videovigilancia y telecomunicaciones.</p>
                 <div class="flex gap-4">
-                    <button onclick="buscar('Hikvision')" class="bg-white text-blue-600 px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-lg hover:scale-105 transition-transform">Ver Novedades</button>
+                    <button onclick="verNovedadesAleatorias()" class="bg-white text-blue-600 px-8 py-4 rounded-2xl font-black text-xs uppercase shadow-lg hover:scale-105 transition-transform">Ver Novedades</button>
                 </div>
             </div>
             <i class="fas fa-shield-alt absolute -right-10 -bottom-10 text-[20rem] text-white/10 rotate-12"></i>
@@ -64,8 +62,7 @@
             </div>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="products-grid">
-            </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="products-grid"></div>
     </main>
 
     <script>
@@ -93,78 +90,87 @@
                 });
                 const data = await res.json();
                 token = data.access_token;
-                buscar(''); 
-            } catch (err) {
-                console.error("Error al autenticar.");
-            }
+                buscar('Hikvision'); 
+            } catch (err) { console.error("Error Auth"); }
         }
 
-        async function buscar(query) {
+        async function buscar(query, esAleatorio = false) {
             if (!token) return;
             const grid = document.getElementById('products-grid');
             const spinner = document.getElementById('loading-spinner');
-            const title = document.getElementById('section-title');
-            
             spinner.classList.remove('hidden');
-            title.innerText = query ? `Resultados para: ${query}` : "Productos Destacados";
 
             try {
-                const q = query || 'Hikvision'; 
-                const res = await fetch(`${CONFIG.proxy}https://developers.syscom.mx/api/v1/productos?busqueda=${q}`, {
+                const res = await fetch(`${CONFIG.proxy}https://developers.syscom.mx/api/v1/productos?busqueda=${query}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
-                renderizar(data.productos);
+                
+                let productosAMostrar = data.productos;
+
+                if (esAleatorio && productosAMostrar.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * productosAMostrar.length);
+                    productosAMostrar = [productosAMostrar[randomIndex]];
+                    document.getElementById('section-title').innerText = "Recomendación para ti";
+                } else {
+                    document.getElementById('section-title').innerText = query === 'Hikvision' ? "Productos Destacados" : `Resultados para: ${query}`;
+                }
+
+                renderizar(productosAMostrar);
             } catch (err) {
-                grid.innerHTML = '<p class="col-span-full text-center py-20 text-slate-400 font-bold">Ocurrió un error al cargar los productos.</p>';
+                grid.innerHTML = '<p class="col-span-full text-center py-20 text-slate-400 font-bold">Error al conectar.</p>';
             } finally {
                 spinner.classList.add('hidden');
             }
+        }
+
+        function verNovedadesAleatorias() {
+            // Buscamos algo general para tener variedad y luego elegimos uno al azar
+            buscar('Camara', true);
         }
 
         function renderizar(productos) {
             const grid = document.getElementById('products-grid');
             grid.innerHTML = '';
 
-            if(!productos || productos.length === 0) {
-                grid.innerHTML = '<p class="col-span-full text-center py-20 text-slate-400 font-bold">No se encontraron equipos disponibles.</p>';
-                return;
-            }
-
             productos.forEach(p => {
-                const costoUSD = parseFloat(p.precios.precio_descuento || p.precios.precio_especial || p.precios.precio_lista) || 0;
+                const costoUSD = parseFloat(p.precios.precio_descuento || p.precios.precio_lista) || 0;
                 const precioFinal = ((costoUSD * CONFIG.tipoCambio) / CONFIG.margen) * 1.16;
+                
+                // Link de ficha técnica basado en el formato de SYSCOM
+                const linkFicha = p.link_privado || `https://www.syscom.mx/producto/${p.modelo.replace(/ /g, "-")}.html`;
 
                 if(precioFinal > 0) {
                     grid.innerHTML += `
                         <div class="product-card bg-white rounded-[2rem] p-6 flex flex-col border border-slate-100">
-                            <div class="relative mb-6 bg-slate-50 rounded-[1.5rem] p-4 h-52 flex items-center justify-center">
-                                <img src="${p.img_portada}" class="max-h-full object-contain mix-blend-multiply" onerror="this.src='https://via.placeholder.com/300?text=IMPETEC'">
-                                <span class="absolute top-3 right-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[9px] font-black text-blue-600 border border-blue-50 uppercase tracking-tighter italic">
+                            <div class="relative mb-6 bg-slate-50 rounded-[1.5rem] p-4 h-52 flex items-center justify-center cursor-pointer" onclick="window.open('${linkFicha}', '_blank')">
+                                <img src="${p.img_portada}" class="max-h-full object-contain mix-blend-multiply">
+                                <span class="absolute top-3 right-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[9px] font-black text-blue-600 border border-blue-50 uppercase italic tracking-tighter">
                                     ${p.marca}
                                 </span>
                             </div>
                             
                             <div class="flex-1 px-1">
-                                <p class="text-[10px] font-black text-blue-600 uppercase tracking-wider mb-1">${p.modelo}</p>
+                                <p class="text-[10px] font-black text-blue-600 uppercase mb-1">${p.modelo}</p>
                                 <h4 class="font-bold text-slate-800 text-[13px] leading-snug line-clamp-2 h-10">${p.titulo}</h4>
                             </div>
 
                             <div class="mt-6 pt-6 border-t border-slate-50">
                                 <div class="flex items-baseline gap-1">
-                                    <span class="text-2xl font-black text-slate-900">$${precioFinal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                    <span class="text-2xl font-black text-slate-900">$${precioFinal.toLocaleString('es-MX', {minimumFractionDigits: 2})}</span>
                                     <span class="text-[10px] font-bold text-slate-400 uppercase">MXN</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 mt-1 text-green-600">
-                                    <i class="fas fa-check-circle text-[10px]"></i>
-                                    <p class="text-[10px] font-bold uppercase tracking-tighter">Neto con IVA Incluido</p>
-                                </div>
                                 
-                                <button onclick="enviarWA('${p.modelo}', '${p.titulo}')" 
-                                    class="w-full mt-6 bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-3 hover:bg-blue-600 transition-all shadow-xl shadow-slate-200">
-                                    <i class="fab fa-whatsapp text-lg text-green-400"></i>
-                                    Comprar ahora
-                                </button>
+                                <div class="grid grid-cols-2 gap-2 mt-5">
+                                    <button onclick="window.open('${linkFicha}', '_blank')" 
+                                        class="bg-slate-100 text-slate-700 py-3 rounded-xl font-bold text-[9px] uppercase hover:bg-blue-50 hover:text-blue-600 transition-all flex items-center justify-center gap-1">
+                                        <i class="fas fa-file-pdf"></i> Ficha
+                                    </button>
+                                    <button onclick="enviarWA('${p.modelo}', '${p.titulo}')" 
+                                        class="bg-slate-900 text-white py-3 rounded-xl font-black text-[9px] uppercase flex items-center justify-center gap-2 hover:bg-blue-600 transition-all shadow-lg shadow-slate-200">
+                                        <i class="fab fa-whatsapp text-green-400"></i> Comprar
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -173,7 +179,7 @@
         }
 
         function enviarWA(mod, tit) {
-            const msg = `Hola Impetec, me interesa el equipo:\nModelo: ${mod}\nDescripción: ${tit}\n¿Me pueden confirmar disponibilidad?`;
+            const msg = `Hola Impetec, me interesa:\nModelo: ${mod}\nDesc: ${tit}\n¿Tienen disponibilidad?`;
             window.open(`https://wa.me/${CONFIG.waVentas}?text=${encodeURIComponent(msg)}`);
         }
 
